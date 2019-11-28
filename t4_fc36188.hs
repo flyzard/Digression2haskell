@@ -25,26 +25,30 @@ data Rota = Rota {
     paragens :: [Paragem]
 }
 
-data Paragem = Spot {
-    nome :: String, 
+data Paragem = Paragem {
+    sitio :: String,
     ponto :: Ponto
 }
 
 instance Show Rota where
-    show (Rota n pa pu) = n ++ " " ++ ( show $ round $ distanciaPercurso pu) ++ ": " ++ (intercalate " --- " pa)
-        where dist = 
+    show (Rota n pa) = n ++ " " ++ (show dist) ++ ": " ++ (intercalate " --- " (map sitio pa))
+        where dist = round $ distanciaPercurso (map ponto pa)
 
 instance Show Paragem where
-    show (Spot n p) = show n
+    show (Paragem n p) = show n
+
+criaRota :: String -> [String] -> Percurso -> Rota
+criaRota name sitios percurso = Rota name (listaParagens sitios percurso)
 
 adicionaTecnica :: Int -> Ponto -> Rota -> Rota
 adicionaTecnica i ponto rota = Rota (nome rota) (adicionaAhLista i (criaParagemTecnica ponto) (paragens rota))
 
+-- Funções auxiliares --
 criaParagem :: String -> Ponto -> Paragem
 criaParagem s p = Paragem s p
 
-criaParagemTecnica :: String -> Ponto -> Paragem
-criaParagemTecnica p = Paragem "(Pausa)" p
+criaParagemTecnica :: Ponto -> Paragem
+criaParagemTecnica p = criaParagem "(Pausa)" p
 
 adicionaParagem :: Int -> Paragem -> Rota -> Rota
 adicionaParagem i paragem rota = Rota (nome rota) (adicionaAhLista i paragem $ paragens rota)
@@ -52,28 +56,16 @@ adicionaParagem i paragem rota = Rota (nome rota) (adicionaAhLista i paragem $ p
 removeParagemNum :: Int -> Rota -> Rota
 removeParagemNum i rota = Rota (nome rota) (removeDaLista i (paragens rota))
 
-criaRota :: String -> [String] -> Percurso -> Rota
-criaRota name sitios percurso = Rota name (listaParagens sitios percurso)
-
-listaParagens :: [String] -> Percurso -> [Paragens]
-listaParagens sitios percurso = let matchedList = zip sitios percurso
-    in map Paragem matchedList
+listaParagens :: [String] -> Percurso -> [Paragem]
+listaParagens sitios percurso = map (\x -> Paragem (fst x) (snd x)) (zip sitios percurso)
     
 adicionaAhLista :: Int -> a -> [a] -> [a]
 adicionaAhLista _ a [] = a:[]
 adicionaAhLista 0 a xs = a:xs
 adicionaAhLista i a (x:xs) = x:(adicionaAhLista (i - 1) a xs)
 
-removeDaLista :: Int -> a -> [a] -> [a]
+removeDaLista :: Int -> [a] -> [a]
 removeDaLista _ [] = []
 removeDaLista i (x:xs)
     | i == 0 = xs
-    | otherwise = a : removeDaLista (i-1) as
-
--- Maybe they want a type for the spots, another for the tecnical pauses... Work with k -> v maps, more show defenitions... Check book if have time
---  a versão master já entregue. se tiverres tempo acaba esta...
-isEmpty :: Rota -> Bool
-isEmpty r = paragens r == []
-
-hasPause :: Rota -> Bool
-hasPause r =  
+    | otherwise = x : removeDaLista (i-1) xs
