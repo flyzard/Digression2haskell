@@ -31,7 +31,7 @@ data Paragem = Paragem {
 }
 
 instance Show Rota where
-    show (Rota n pa) = n ++ " " ++ (show dist) ++ ": " ++ (intercalate " --- " (map sitio pa))
+    show (Rota n pa) = n ++ " " ++ show dist ++ ": " ++ intercalate " --- " (map sitio pa)
         where dist = round $ distanciaPercurso (map ponto pa)
 
 instance Show Paragem where
@@ -45,10 +45,10 @@ adicionaTecnica i ponto rota = Rota (nome rota) (adicionaAhLista i (criaParagemT
 
 -- Funções auxiliares --
 criaParagem :: String -> Ponto -> Paragem
-criaParagem s p = Paragem s p
+criaParagem = Paragem
 
 criaParagemTecnica :: Ponto -> Paragem
-criaParagemTecnica p = criaParagem "(Pausa)" p
+criaParagemTecnica = criaParagem "(Pausa)"
 
 adicionaParagem :: Int -> Paragem -> Rota -> Rota
 adicionaParagem i paragem rota = Rota (nome rota) (adicionaAhLista i paragem $ paragens rota)
@@ -62,7 +62,7 @@ listaParagens sitios percurso = map (\x -> Paragem (fst x) (snd x)) (zip sitios 
 adicionaAhLista :: Int -> a -> [a] -> [a]
 adicionaAhLista _ a [] = a:[]
 adicionaAhLista 0 a xs = a:xs
-adicionaAhLista i a (x:xs) = x:(adicionaAhLista (i - 1) a xs)
+adicionaAhLista i a (x:xs) = x:adicionaAhLista (i - 1) a xs
 
 removeDaLista :: Int -> [a] -> [a]
 removeDaLista _ [] = []
